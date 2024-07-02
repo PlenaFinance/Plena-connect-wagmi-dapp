@@ -179,7 +179,7 @@ function Page() {
                 from: walletAddress,
                 chainId: chainId,
                 to: [USDT, AAVE_V3_POOL_POLYGON],
-                
+               
                 data: [approveData,lendData], 
               },
             ],
@@ -204,14 +204,17 @@ function Page() {
     setPending(true);
     try {
       const message = `My email is john@doe.com - ${new Date().toUTCString()}`;
-      const hexMsg = utf8ToHex(message);
+      const hexMsg = convertUtf8ToHex(message);
       const msgParams = [hexMsg, walletAddress];
+      console.log("msgParams", msgParams);
       const res = await connector.sendPlenaTransaction({
         chain: 137,
         method: "personal_sign",
-        payload: {
-          msgParams,
-        },
+        params: [
+        
+            msgParams
+          
+        ],
       });
       if (!res?.success) {
         setResult(false);
