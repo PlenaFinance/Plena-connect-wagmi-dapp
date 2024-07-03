@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@ethersproject/bytes": "^5.7.0",
-    "@plenaconnect/provider": "^0.3.5",
+    "@plenaconnect/provider": "^0.3.6",
     "@plenaconnect/wagmi-connector": "^0.1.3",
     "@rainbow-me/rainbowkit": "^2.1.2",
     "@tanstack/react-query": "^5.49.2",

@@ -12,7 +12,7 @@ import SendTxnModal from "../Modals/sendTxnModal";
 import SignMessageModal from "../Modals/signMessageModal";
 import { ethers } from "ethers";
 import { eip1271 } from "../utils/eip1271";
-
+import TransactionModal from "../Modals/sendSingleTxnModal";
 import { hashMessage } from "../utils/utilities";
 
 function Page() {
@@ -25,7 +25,7 @@ function Page() {
     data: hash,
     isPending: isTransactionPending,
     isError: isTransactionError,
-    sendTransaction,
+    sendTransactionAsync,
   } = useSendTransaction();
   
   const { isLoading: isConfirming, isSuccess: isConfirmed ,error:txnError ,  } =
@@ -233,15 +233,29 @@ function Page() {
       amount,
     ]);
 try{
-    const res = sendTransaction({
+    const res = await sendTransactionAsync({
       to:USDT,
       chainId:137,
       data:approveData
     })
-  }catch(error){
-    console.log("error",error);
+    if (!res?.success) {
+      setResult(false);
+      return;
+    }
+   
+    const formattedResult = {
+      method: 'send_transaction',
+      txHash: res?.content?.transactionHash,
+      from: walletAddress,
+    };
+    setResult(formattedResult);
+  }catch (error) {
+    console.log("error", error);
+    setResult(null);
+  } finally {
+    setPending(false);
   }
-}
+};
 
 
 
@@ -269,16 +283,16 @@ try{
         setResult(false);
         return;
       }
-      const hash = hashMessage(message);
-      const polygonProvider = new ethers.providers.JsonRpcProvider(
-        "https://polygon-rpc.com/"
-      );
-      const valid = await eip1271.isValidSignature(
-        walletAddress,
-        res?.content?.signature,
-        hash,
-        polygonProvider
-      );
+      // const hash = hashMessage(message);
+      // const polygonProvider = new ethers.providers.JsonRpcProvider(
+      //   "https://polygon-rpc.com/"
+      // );
+      // const valid = await eip1271.isValidSignature(
+      //   walletAddress,
+      //   res?.content?.signature,
+      //   hash,
+      //   polygonProvider
+      // );
       const formattedResult = {
         method: 'personal_sign',
         signature: res?.content?.signature,
@@ -292,17 +306,7 @@ try{
       setPending(false);
     }
   };
-  useEffect(() => {
-    if (isTransactionPending) {
-      console.log('Transaction is pending...');
-    } else if (isTransactionError) {
-      console.log('Transaction was rejected by the wallet.');
-      setResult(false);
-      setPending(false);
-    }
-  }, [isTransactionPending, isTransactionError]);
-
-
+ 
 
   return (
     <>
@@ -353,6 +357,7 @@ try{
         pendingRequest={pending}
         result={result}
       />
+   
       <SignMessageModal
         isModalOpen={isSignModalOpen}
         onCancel={closeSignModal}
