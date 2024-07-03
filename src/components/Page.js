@@ -316,35 +316,36 @@ try{
           <ConnectButton />
         </div>
       ) : (
-        <div className="h-screen flex justify-center items-center mt-8 bg-gray-100">
-          <div className="h-auto w-96 p-6 bg-white border-3 border-solid border-[#985AFF] rounded-2xl shadow-2xl transform transition duration-300 hover:scale-105">
-            <div className="flex flex-col items-center justify-center mt-8">
-              <ConnectButton className="mb-6" />
-              <h1 className="mb-6 text-2xl font-semibold text-gray-800">Methods</h1>
-              <div className="flex flex-col w-full space-y-4">
-                <button
-                  className="bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:from-purple-500 hover:via-purple-600 hover:to-purple-700 shadow-lg transition ease-in-out duration-300 transform hover:scale-105"
-                  onClick={testSignTransaction}
-                >
-                  Personal Sign
-                </button>
-                <button
-                  className="bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:from-purple-500 hover:via-purple-600 hover:to-purple-700 shadow-lg transition ease-in-out duration-300 transform hover:scale-105"
-                  onClick={testSingleTransaction}
-                >
-                  Send Single Transaction
-                </button>
-                <button
-                  className="bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:from-purple-500 hover:via-purple-600 hover:to-purple-700 shadow-lg transition ease-in-out duration-300 transform hover:scale-105"
-                  onClick={testSendTransaction}
-                >
-                  Send Batch Transaction
-                </button>
-              </div>
+        <div className="h-screen flex flex-col justify-center items-center mt-8 bg-gray-100">
+        <ConnectButton className="mb-10" />
+        <div className="h-auto w-96 p-6 bg-white mt-4 border-3 border-solid border-[#985AFF] rounded-2xl shadow-2xl transform transition duration-300 hover:scale-105">
+          <div className="flex flex-col items-center justify-center">
+            <h1 className="mb-6 text-2xl font-semibold text-gray-800">Methods</h1>
+            <div className="flex flex-col w-full space-y-4">
+              <button
+                className="bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:from-purple-500 hover:via-purple-600 hover:to-purple-700 shadow-lg transition ease-in-out duration-300 transform hover:scale-105"
+                onClick={testSignTransaction}
+              >
+                Personal Sign
+              </button>
+              <button
+                className="bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:from-purple-500 hover:via-purple-600 hover:to-purple-700 shadow-lg transition ease-in-out duration-300 transform hover:scale-105"
+                onClick={testSingleTransaction}
+              >
+                Send Single Transaction
+              </button>
+              <button
+                className="bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 text-white font-bold py-2 px-4 rounded-lg hover:from-purple-500 hover:via-purple-600 hover:to-purple-700 shadow-lg transition ease-in-out duration-300 transform hover:scale-105"
+                onClick={testSendTransaction}
+              >
+                Send Batch Transaction
+              </button>
             </div>
           </div>
         </div>
-      )}
+      </div>
+      
+         )}
       <SendTxnModal
         isModalOpen={isTxnModalOpen}
         onCancel={closeTxnModal}

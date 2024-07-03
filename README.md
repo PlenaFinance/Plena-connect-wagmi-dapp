@@ -1,70 +1,181 @@
-# Getting Started with Create React App
+# Plena Finance Wallet Integration with RainbowKit and Wagmi
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Introduction
 
-## Available Scripts
+Plena Finance provides a robust wallet integration for dApps. Using Wagmi and RainbowKit, we can easily integrate Plena into a web3 application, allowing users to perform transactions and sign messages securely.
 
-In the project directory, you can run:
+## Setup and Installation
 
-### `npm start`
+First, ensure you have the required dependencies installed in your project:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```bash
+npm install @rainbow-me/rainbowkit wagmi ethers @tanstack/react-query @plenaconnect/wagmi-connector @plenaconnect/provider
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Creating the Plena Connector
 
-### `npm test`
+Create a file named `plenaRainbowConnector.js` and add the following code to define the Plena wallet connector:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```javascript
+import { createConnector as createWagmiConnector } from "wagmi";
+import { PlenaWagmiConnector } from "@plenaconnect/wagmi-connector";
+import { PlenaConnectProvider } from "@plenaconnect/provider";
 
-### `npm run build`
+export const rainbowPlenaConnector = () => ({
+  id: "plena",
+  name: "plena",
+  rdns: "plena",
+  iconUrl: "https://content.plena.finance/plena.png",
+  iconBackground: "#fff",
+  installed: true,
+  createConnector: (walletDetails) =>
+    createWagmiConnector((config) => {
+      const chainId = config?.storage?.["wagmi.store"]
+        ? JSON.parse(config?.storage?.["wagmi.store"])?.state?.chainId
+        : config.chains[0]?.id;
+      const PlenaConnectInstance = new PlenaConnectProvider({
+        dappToken: "YOUR DAPP TOKEN",
+        dappId: "YOUR DAPP ID",
+        bridgeUrl: "BRIDGE URL",
+        chainId: chainId,
+        chains: config.chains,
+      });
+      console.log("config  ", PlenaConnectInstance, config);
+      return {
+        ...PlenaWagmiConnector(PlenaConnectInstance)(config),
+        ...walletDetails,
+      };
+    }),
+});
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Configuring RainbowKit and Wagmi
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Create a main file (e.g., `App.js`) and configure RainbowKit and Wagmi with the Plena wallet connector:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```javascript
+import "@rainbow-me/rainbowkit/styles.css";
+import { RainbowKitProvider, getDefaultConfig } from "@rainbow-me/rainbowkit";
+import { rainbowWallet } from "@rainbow-me/rainbowkit/wallets";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { WagmiProvider, http } from "wagmi";
+import { mainnet, polygon } from "wagmi/chains";
+import { rainbowPlenaConnector } from "./lib/plenaRainbowConnector";
+import Page from "./components/Page";
 
-### `npm run eject`
+const queryClient = new QueryClient();
+const config = getDefaultConfig({
+  appName: "plena-dapp",
+  projectId: "YOUR_PROJECT_ID",
+  chains: [mainnet, polygon],
+  transports: {
+    [mainnet.id]: http(),
+    [polygon.id]: http(),
+  },
+  wallets: [
+    {
+      groupName: "Recommended",
+      wallets: [rainbowWallet, rainbowPlenaConnector],
+    },
+  ],
+});
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+function App() {
+  return (
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider>
+          <Page />
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
+  );
+}
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+export default App;
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Sending Single Transactions
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+To send a single transaction using Wagmi's `sendTransactionAsync` method:
 
-## Learn More
+```javascript
+const TOKEN_ADDRESS = "0xTokenAddress"; // Replace with the actual token address
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+const ContractABI = [
+  // Replace with the actual Contract ABI
+];
+const ContractInterface = new ethers.utils.Interface(ContractABI);
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+// Create data for the transaction
+const TxnData = ContractInterface.encodeFunctionData("FUNCTION NAME", [
+  PARAMETER1,
+  PARAMETER2,
+]);
 
-### Code Splitting
+const res = await sendTransactionAsync({
+  to: TOKEN_ADDRESS,
+  chainId: 137,
+  data: TxnData,
+});
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Sending Batched Transactions
 
-### Analyzing the Bundle Size
+To send batched transactions using Plena's `sendPlenaTransaction` method:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```javascript
+const txn1Address = "0x123..."; // Replace with actual address
+const txn2Address = "0x456..."; // Replace with actual address
 
-### Making a Progressive Web App
+const Contract1ABI = [
+  // Replace with actual Contract1 ABI
+];
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+const Contract2ABI = [
+  // Replace with actual Contract2 ABI
+];
 
-### Advanced Configuration
+const Contract1 = new ethers.utils.Interface(Contract1ABI);
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+// Create data for the first transaction
+const txn1Data = Contract1.encodeFunctionData("FUNCTION_NAME_1", [
+  PARAMETER1,
+  PARAMETER2,
+]);
 
-### Deployment
+const Contract2 = new ethers.utils.Interface(Contract2ABI);
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+// Create data for the second transaction
+const txn2Data = Contract2.encodeFunctionData("FUNCTION_NAME_2", [
+  PARAMETER1,
+  PARAMETER2,
+]);
 
-### `npm run build` fails to minify
+const res = await connector.sendPlenaTransaction({
+  method: "eth_sendTransaction",
+  params: [
+    {
+      from: walletAddress,
+      chainId: chainId,
+      to: [txn1Address, txn2Address],
+      gasLimit: "10000000",
+      data: [txn1Data, txn2Data],
+    },
+  ],
+});
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Make sure that the address and their corresponding data are in the same order.
+
+## Signing Transactions
+
+To sign a transaction using Plena's `sendPlenaTransaction` method:
+
+```javascript
+const res = await connector.sendPlenaTransaction({
+  chain: 137,
+  method: "personal_sign",
+  params: [msgParams],
+});
+```
