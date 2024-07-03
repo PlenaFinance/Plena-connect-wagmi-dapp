@@ -1,8 +1,14 @@
 import * as ethUtil from 'ethereumjs-util';
-import { convertUtf8ToHex } from '@plenaconnect/utils';
+import { ethers } from 'ethers';
+
+const utf8ToHex = (str) => {
+  const bytes = ethers.utils.toUtf8Bytes(str);
+  const hex = ethers.utils.hexlify(bytes);
+  return hex;
+};
 
 export function encodePersonalMessage(msg) {
-  const data = ethUtil.toBuffer(convertUtf8ToHex(msg));
+  const data = ethUtil.toBuffer(utf8ToHex(msg));
   const buf = Buffer.concat([
     Buffer.from(
       '\u0019Ethereum Signed Message:\n' + data.length.toString(),
