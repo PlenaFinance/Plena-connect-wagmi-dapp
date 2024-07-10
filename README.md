@@ -12,9 +12,9 @@ First, ensure you have the required dependencies installed in your project:
 npm install @rainbow-me/rainbowkit wagmi ethers @tanstack/react-query @plenaconnect/wagmi-connector @plenaconnect/provider
 ```
 
-## Creating the Plena Connector
+## Creating the Plena Rainbowkit Connector
 
-Create a file named `plenaRainbowConnector.js` and add the following code to define the Plena wallet connector:
+Create a file named `plenaRainbowConnector.js` and add the following code to define the Plena rainbowkit connector:
 
 ```javascript
 import { createConnector as createWagmiConnector } from "wagmi";
@@ -51,7 +51,7 @@ export const rainbowPlenaConnector = () => ({
 
 ## Configuring RainbowKit and Wagmi
 
-Create a main file (e.g., `App.js`) and configure RainbowKit and Wagmi with the Plena wallet connector:
+Create a main file (e.g., `App.js`) and configure RainbowKit and Wagmi with the Plena rainbowkit connector:
 
 ```javascript
 import "@rainbow-me/rainbowkit/styles.css";
@@ -96,8 +96,7 @@ export default App;
 ```
 
 ## Sending Single Transactions
-Single transcations can be sent using wagmi's owns function.
-To send a single transaction using Wagmi's `sendTransactionAsync` method:
+To send a single transaction use Wagmi's `sendTransactionAsync` method:
 
 ```javascript
 const TOKEN_ADDRESS = "0xTokenAddress"; // Replace with the actual token address
@@ -121,10 +120,13 @@ const res = await sendTransactionAsync({
 ```
 
 ## Sending Batched Transactions
-
-To send batched transactions using Plena's `sendPlenaTransaction` method:
+To send batched transactions, first get the Plena wallet connector from the `useConnections` hook of Wagmi, and then use Plena's `sendPlenaTransaction` function with the `eth_sendTransaction` method
 
 ```javascript
+
+const connections = useConnections();
+let connector = connections[0]?.connector;
+
 const txn1Address = "0x123..."; // Replace with actual address
 const txn2Address = "0x456..."; // Replace with actual address
 
@@ -166,11 +168,11 @@ const res = await connector.sendPlenaTransaction({
 });
 ```
 
-Make sure that the address and their corresponding data are in the same order.
+Please make sure the addresses and their corresponding data are in the same order.
 
 ## Signing Transactions
 
-To sign a transaction using Plena's `sendPlenaTransaction` method:
+To sign a transaction use Plena's `sendPlenaTransaction`  function with the `personal_sign` method:
 
 ```javascript
 const res = await connector.sendPlenaTransaction({
