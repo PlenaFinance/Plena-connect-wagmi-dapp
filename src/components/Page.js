@@ -283,16 +283,16 @@ try{
         setResult(false);
         return;
       }
-      // const hash = hashMessage(message);
-      // const polygonProvider = new ethers.providers.JsonRpcProvider(
-      //   "https://polygon-rpc.com/"
-      // );
-      // const valid = await eip1271.isValidSignature(
-      //   walletAddress,
-      //   res?.content?.signature,
-      //   hash,
-      //   polygonProvider
-      // );
+      const hash = hashMessage(message);
+      const polygonProvider = new ethers.providers.JsonRpcProvider(
+        "https://polygon-rpc.com/"
+      );
+      const valid = await eip1271.isValidSignature(
+        walletAddress,
+        res?.content?.signature,
+        hash,
+        polygonProvider
+      );
       const formattedResult = {
         method: 'personal_sign',
         signature: res?.content?.signature,

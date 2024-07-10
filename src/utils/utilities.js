@@ -1,33 +1,15 @@
-import * as ethUtil from 'ethereumjs-util';
-import { ethers } from 'ethers';
+import { keccak256 } from 'ethers/lib/utils';
 
-const utf8ToHex = (str) => {
-  const bytes = ethers.utils.toUtf8Bytes(str);
-  const hex = ethers.utils.hexlify(bytes);
-  return hex;
-};
-
-const toUint8Array = (hex) => {
-  if (hex.startsWith('0x')) {
-    hex = hex.slice(2);
-  }
-  const uint8Array = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < hex.length; i += 2) {
-    uint8Array[i / 2] = parseInt(hex.substr(i, 2), 16);
-  }
-  return uint8Array;
-};
-
+// Function to encode the personal message
 export function encodePersonalMessage(msg) {
-  const utf8Message = `\u0019Ethereum Signed Message:\n${msg.length}${msg}`;
-  const hexMessage = utf8ToHex(utf8Message);
-  const uint8ArrayMessage = toUint8Array(hexMessage);
-  return ethUtil.bufferToHex(ethUtil.keccak256(uint8ArrayMessage));
+  const prefix = `\u0019Ethereum Signed Message:\n${msg.length}`;
+  const utf8Message = prefix + msg;
+  const uint8ArrayMessage = new TextEncoder().encode(utf8Message);
+  return keccak256(uint8ArrayMessage);
 }
 
+// Function to hash a message using Keccak256
 export function hashMessage(msg) {
   const encodedMessage = encodePersonalMessage(msg);
-  const uint8ArrayMessage = toUint8Array(encodedMessage);
-  const hash = ethUtil.keccak256(uint8ArrayMessage);
-  return ethUtil.bufferToHex(hash);
+  return keccak256(encodedMessage);
 }

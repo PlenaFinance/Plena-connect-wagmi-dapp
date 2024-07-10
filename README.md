@@ -96,7 +96,7 @@ export default App;
 ```
 
 ## Sending Single Transactions
-
+Single transcations can be sent using wagmi's owns function.
 To send a single transaction using Wagmi's `sendTransactionAsync` method:
 
 ```javascript
